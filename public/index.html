@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parthu Reddy's Online Cart Management System</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛍️</text></svg>">
+</head>
+<body>
+
+  <!-- Live MySQL Connection Bar -->
+  <div class="db-status-bar" id="dbStatusBar">
+    <div class="db-status-badge">
+      <span class="status-dot"></span>
+      <span>Checking MySQL Database Status...</span>
+    </div>
+  </div>
+
+  <!-- Header Navigation -->
+  <header class="site-header">
+    <div class="nav-container">
+      <a href="/" class="brand-logo">
+        <div class="brand-icon">🛍️</div>
+        <div class="brand-title">
+          <span class="brand-main">Parthu Reddy's</span>
+          <span class="brand-subtitle">Online Cart System</span>
+        </div>
+      </a>
+
+      <!-- Global Search -->
+      <div class="header-search">
+        <span class="header-search-icon">🔍</span>
+        <input type="text" id="globalSearch" placeholder="Search gadgets, audio, laptops, accessories..." autocomplete="off" />
+      </div>
+
+      <!-- Actions -->
+      <div class="nav-actions">
+        <button class="nav-cart-btn" id="openCartBtn" onclick="openCartDrawer()">
+          <span>🛒</span>
+          <span style="font-weight: 600;">Cart</span>
+          <span class="cart-counter" id="navCartCount">0</span>
+        </button>
+
+        <div id="navUserActions" style="display: flex; gap: 10px; align-items: center;">
+          <!-- Dynamically filled by api.js initGlobalHeader() -->
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-container">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span>✨</span> Premium Tech & Lifestyle Store
+        </div>
+        <h1 class="hero-title">
+          Discover Excellence at <span class="highlight">Parthu Reddy's</span> Online Cart
+        </h1>
+        <p class="hero-description">
+          Shop high-performance electronics, premium laptops, sound gear, and everyday tech accessories. Real-time MySQL catalog with transactional checkout and instant delivery tracking.
+        </p>
+
+        <div class="hero-cta-group">
+          <a href="#catalogSection" class="btn-hero-primary">
+            <span>Explore Catalog</span>
+            <span>↓</span>
+          </a>
+          <a href="/login.html" class="btn-hero-secondary">
+            <span>Join Customer Club</span>
+          </a>
+        </div>
+
+        <div class="hero-features">
+          <div class="hero-feature-item">
+            <div class="feature-icon-box">⚡</div>
+            <div class="feature-text">
+              <div class="title">Express Delivery</div>
+              <div class="desc">Same-day dispatch</div>
+            </div>
+          </div>
+          <div class="hero-feature-item">
+            <div class="feature-icon-box">🛡️</div>
+            <div class="feature-text">
+              <div class="title">100% Authentic</div>
+              <div class="desc">Verified products</div>
+            </div>
+          </div>
+          <div class="hero-feature-item">
+            <div class="feature-icon-box">🔄</div>
+            <div class="feature-text">
+              <div class="title">Easy Returns</div>
+              <div class="desc">30-day guarantee</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="hero-card-showcase">
+          <div class="showcase-header">
+            <span class="showcase-tag">Featured Tech</span>
+            <span class="showcase-rating">★★★★★ 4.9</span>
+          </div>
+          <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80" alt="Featured Product" class="showcase-img" />
+          <h3 class="showcase-title">Sony WH-1000XM5 ANC</h3>
+          <div class="showcase-price-row">
+            <span class="showcase-price">$349.99</span>
+            <button class="nav-btn nav-btn-primary" onclick="handleAddToCart(1, 1)">Add to Cart</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Store Catalog Section -->
+  <main class="main-container" id="catalogSection">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Explore Our Catalog</h2>
+        <p class="section-subtitle" id="productCountLabel">Live inventory straight from MySQL database</p>
+      </div>
+
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <button class="nav-btn nav-btn-outline" style="color: var(--navy-900); border-color: var(--border-light);" onclick="loadProducts()">
+          <span>🔄</span> Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Filter & Sort Bar -->
+    <div class="filter-bar">
+      <!-- Category Pills -->
+      <div class="category-pills" id="categoryPills">
+        <button class="cat-pill active" onclick="selectCategory('All')">All Categories</button>
+      </div>
+
+      <!-- Controls: Price Slider & Sort -->
+      <div class="filter-actions">
+        <div class="price-filter">
+          <span>Max Price:</span>
+          <input type="range" id="priceRange" min="50" max="3000" step="50" value="3000" />
+          <strong id="priceVal" style="color: var(--navy-900); min-width: 50px;">$3000</strong>
+        </div>
+
+        <select class="sort-select" id="sortSelect">
+          <option value="newest">Sort: Newest First</option>
+          <option value="price_asc">Price: Low to High</option>
+          <option value="price_desc">Price: High to Low</option>
+          <option value="name_asc">Name: A to Z</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="product-grid" id="productGrid">
+      <!-- Rendered by app.js -->
+    </div>
+  </main>
+
+  <!-- Slide-Over Shopping Cart Drawer -->
+  <div class="cart-overlay" id="cartOverlay" onclick="closeCartDrawer()"></div>
+  <div class="cart-drawer" id="cartDrawer">
+    <div class="cart-header">
+      <div class="cart-header-title">
+        <span>🛒</span>
+        <span>Your Shopping Cart</span>
+      </div>
+      <button class="close-btn" onclick="closeCartDrawer()">×</button>
+    </div>
+
+    <div class="cart-items-container" id="cartItemsList">
+      <!-- Dynamically filled by app.js -->
+    </div>
+
+    <div class="cart-summary">
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <strong id="cartSubtotal">$0.00</strong>
+      </div>
+      <div class="summary-row">
+        <span>Tax (5% Standard)</span>
+        <span id="cartTax">$0.00</span>
+      </div>
+      <div class="summary-row">
+        <span>Shipping</span>
+        <span id="cartShipping">FREE</span>
+      </div>
+      <div class="summary-row total-row">
+        <span>Estimated Total</span>
+        <strong id="cartTotal" style="color: var(--blue-600);">$0.00</strong>
+      </div>
+
+      <button class="btn-checkout" id="btnStartCheckout" onclick="openCheckoutModal()">
+        <span>Proceed to Secure Checkout</span>
+        <span>→</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-col">
+        <div class="brand-logo" style="margin-bottom: 14px;">
+          <div class="brand-icon">🛍️</div>
+          <div class="brand-title">
+            <span class="brand-main">Parthu Reddy's</span>
+            <span class="brand-subtitle">Online Cart System</span>
+          </div>
+        </div>
+        <p style="font-size: 0.85rem; line-height: 1.6; max-width: 320px;">
+          Engineered from scratch with Node.js, Express, MySQL and modern vanilla web standards. Providing enterprise-grade cart management and transactional security.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <ul class="footer-links">
+          <li><a href="/">Home Catalog</a></li>
+          <li><a href="/customer-dashboard.html">My Orders</a></li>
+          <li><a href="/admin.html">Admin Portal</a></li>
+          <li><a href="/login.html">Sign In / Register</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Categories</h4>
+        <ul class="footer-links">
+          <li><a href="javascript:void(0)" onclick="selectCategory('Audio')">Audio & Sound</a></li>
+          <li><a href="javascript:void(0)" onclick="selectCategory('Laptops')">Laptops & Computers</a></li>
+          <li><a href="javascript:void(0)" onclick="selectCategory('Accessories')">Tech Accessories</a></li>
+          <li><a href="javascript:void(0)" onclick="selectCategory('Wearables')">Smart Wearables</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Architecture</h4>
+        <ul class="footer-links">
+          <li><span style="color: #60a5fa;">●</span> MySQL 8.0 InnoDB</li>
+          <li><span style="color: #60a5fa;">●</span> Express.js REST API</li>
+          <li><span style="color: #60a5fa;">●</span> Bcrypt & JWT Auth</li>
+          <li><span style="color: #60a5fa;">●</span> ACID Transactions</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>&copy; 2026 Parthu Reddy's Online Cart Management System. All rights reserved.</div>
+      <div style="display: flex; gap: 16px;">
+        <span>Local Port: 3000</span>
+        <span>•</span>
+        <span>Database: MySQL</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/js/api.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

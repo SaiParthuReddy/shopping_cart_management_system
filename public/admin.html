@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Portal - Parthu Reddy's Online Cart</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚙️</text></svg>">
+</head>
+<body>
+
+  <!-- Live MySQL Connection Bar -->
+  <div class="db-status-bar" id="dbStatusBar">
+    <div class="db-status-badge">
+      <span class="status-dot"></span>
+      <span>Checking MySQL Database Status...</span>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="nav-container">
+      <a href="/admin.html" class="brand-logo">
+        <div class="brand-icon" style="background: linear-gradient(135deg, #1e3e62, #0b192c);">⚙️</div>
+        <div class="brand-title">
+          <span class="brand-main">Admin Console</span>
+          <span class="brand-subtitle">Parthu Reddy's Online Cart</span>
+        </div>
+      </a>
+
+      <div class="nav-actions">
+        <a href="/" class="nav-btn nav-btn-outline">
+          <span>🛍️ Customer Store</span>
+        </a>
+
+        <div id="navUserActions" style="display: flex; gap: 10px; align-items: center;"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Admin Main Content -->
+  <main class="main-container">
+
+    <!-- Top Bar with Add Product CTA -->
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Administrator Management Suite</h2>
+        <p class="section-subtitle">Manage products, live MySQL stock, customer orders, and registered accounts</p>
+      </div>
+
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <button class="nav-btn nav-btn-primary" onclick="openAddProductModal()">
+          <span>➕</span> Add New Product
+        </button>
+        <button class="nav-btn nav-btn-outline" style="color: var(--navy-900); border-color: var(--border-light);" onclick="refreshAdminData()">
+          <span>🔄</span> Sync Data
+        </button>
+      </div>
+    </div>
+
+    <!-- Analytics Cards -->
+    <div class="dashboard-grid">
+      <div class="stat-card">
+        <div class="stat-icon icon-blue">📦</div>
+        <div>
+          <div class="stat-value" id="adminTotalProducts">0</div>
+          <div class="stat-label">Total Products</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon icon-purple">👥</div>
+        <div>
+          <div class="stat-value" id="adminTotalCustomers">0</div>
+          <div class="stat-label">Total Customers</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon icon-gold">📋</div>
+        <div>
+          <div class="stat-value" id="adminTotalOrders">0</div>
+          <div class="stat-label">Total Orders</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon icon-emerald">💰</div>
+        <div>
+          <div class="stat-value" id="adminTotalRevenue">$0.00</div>
+          <div class="stat-label">Confirmed Revenue</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Low Stock Alert Banner (if any) -->
+    <div id="lowStockAlertSection" style="display: none; background: #fffbeb; border: 1px solid #fef3c7; border-left: 6px solid var(--accent-gold); border-radius: var(--radius-md); padding: 16px 20px; margin-bottom: 28px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+        <div style="font-weight: 700; color: #92400e; display: flex; align-items: center; gap: 8px;">
+          <span>⚠️</span> <span>Low Stock Inventory Warning</span>
+        </div>
+        <span class="status-badge badge-pending" id="lowStockCountBadge">0 Products</span>
+      </div>
+      <div id="lowStockList" style="display: flex; gap: 12px; flex-wrap: wrap;"></div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tabs-nav">
+      <button class="tab-btn active" id="tabBtnProducts" onclick="switchAdminTab('products')">
+        <span>📦</span> Products Catalog (<span id="tabCountProducts">0</span>)
+      </button>
+      <button class="tab-btn" id="tabBtnOrders" onclick="switchAdminTab('orders')">
+        <span>📑</span> Customer Orders (<span id="tabCountOrders">0</span>)
+      </button>
+      <button class="tab-btn" id="tabBtnCustomers" onclick="switchAdminTab('customers')">
+        <span>👥</span> Customers Roster (<span id="tabCountCustomers">0</span>)
+      </button>
+    </div>
+
+    <!-- TAB 1: PRODUCTS MANAGEMENT -->
+    <section id="tabContentProducts" class="tab-content active">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+        <div style="position: relative; max-width: 320px; width: 100%;">
+          <input type="text" id="adminProductSearch" class="form-control" placeholder="Search products by name or category..." oninput="filterAdminProducts(this.value)" />
+        </div>
+        <div style="font-size: 0.85rem; color: var(--text-muted);" id="adminProductFilterStats"></div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th style="width: 70px;">Image</th>
+              <th>Product Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Quick Stock Update</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="adminProductsTable">
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                Loading inventory from MySQL...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 2: ORDERS MANAGEMENT -->
+    <section id="tabContentOrders" class="tab-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <span style="font-size: 0.85rem; font-weight: 600; color: var(--navy-900);">Filter Status:</span>
+          <select id="orderStatusFilter" class="sort-select" onchange="loadAdminOrders(this.value)">
+            <option value="All">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Processing">Processing</option>
+            <option value="Shipped">Shipped</option>
+            <option value="Delivered">Delivered</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Order #</th>
+              <th>Customer</th>
+              <th>Contact</th>
+              <th>Date</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Update Status</th>
+              <th style="text-align: right;">Items</th>
+            </tr>
+          </thead>
+          <tbody id="adminOrdersTable">
+            <tr>
+              <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                Loading orders from MySQL...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 3: CUSTOMERS ROSTER -->
+    <section id="tabContentCustomers" class="tab-content">
+      <div class="table-responsive">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>User ID</th>
+              <th>Customer Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Role</th>
+              <th>Total Orders</th>
+              <th>Total Spent</th>
+            </tr>
+          </thead>
+          <tbody id="adminCustomersTable">
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                Loading customers from MySQL...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Add / Edit Product Modal -->
+  <div class="modal-overlay" id="productFormModal">
+    <div class="modal-box" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="productModalTitle">Add New Product</h3>
+        <button class="close-btn" onclick="closeProductFormModal()">×</button>
+      </div>
+      <form id="productForm" onsubmit="handleProductFormSubmit(event)">
+        <div class="modal-body">
+          <input type="hidden" id="formProductId" />
+
+          <div class="form-group">
+            <label class="form-label" for="formProductName">Product Name *</label>
+            <input type="text" id="formProductName" class="form-control" placeholder="e.g. Sony WH-1000XM5 Wireless Headphones" required />
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label" for="formCategory">Category *</label>
+              <input type="text" id="formCategory" class="form-control" placeholder="e.g. Audio, Laptops, Accessories" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="formPrice">Price (USD) *</label>
+              <input type="number" step="0.01" min="0" id="formPrice" class="form-control" placeholder="e.g. 299.99" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="formStock">Inventory Stock Count *</label>
+            <input type="number" min="0" id="formStock" class="form-control" placeholder="e.g. 25" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="formImageUrl">Image URL (Optional)</label>
+            <input type="url" id="formImageUrl" class="form-control" placeholder="https://images.unsplash.com/photo-..." />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="formDescription">Description</label>
+            <textarea id="formDescription" class="form-control" rows="3" placeholder="Enter full specifications and features..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="nav-btn nav-btn-outline" onclick="closeProductFormModal()">Cancel</button>
+          <button type="submit" class="nav-btn nav-btn-primary" id="btnSaveProduct">Save to Database</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Product Confirmation Modal -->
+  <div class="modal-overlay" id="deleteConfirmModal">
+    <div class="modal-box" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 class="modal-title" style="color: var(--accent-rose);">Confirm Deletion</h3>
+        <button class="close-btn" onclick="closeDeleteModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 12px;">
+          Are you sure you want to permanently delete this product?
+        </p>
+        <div style="background: var(--bg-page); padding: 12px 16px; border-radius: 8px; font-weight: 700; color: var(--navy-900);" id="deleteProductName"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="nav-btn nav-btn-outline" onclick="closeDeleteModal()">Cancel</button>
+        <button class="nav-btn nav-btn-primary" style="background: var(--accent-rose);" id="btnConfirmDelete">Delete Product</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Order Details Modal -->
+  <div class="modal-overlay" id="adminOrderModal">
+    <div class="modal-box" style="max-width: 650px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="adminOrderModalTitle">Order Items</h3>
+        <button class="close-btn" onclick="closeAdminOrderModal()">×</button>
+      </div>
+      <div class="modal-body" id="adminOrderModalBody"></div>
+      <div class="modal-footer">
+        <button class="nav-btn nav-btn-outline" onclick="closeAdminOrderModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-bottom" style="margin: 0 auto; max-width: 1300px;">
+      <div>&copy; 2026 Parthu Reddy's Online Cart Management System. Administrator Control Room.</div>
+      <div>Role Authorization Enforced</div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

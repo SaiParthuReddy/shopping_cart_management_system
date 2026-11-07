@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Dashboard & Orders - Parthu Reddy's Online Cart</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛍️</text></svg>">
+</head>
+<body>
+
+  <!-- Live MySQL Connection Bar -->
+  <div class="db-status-bar" id="dbStatusBar">
+    <div class="db-status-badge">
+      <span class="status-dot"></span>
+      <span>Checking MySQL Database Status...</span>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="nav-container">
+      <a href="/" class="brand-logo">
+        <div class="brand-icon">🛍️</div>
+        <div class="brand-title">
+          <span class="brand-main">Parthu Reddy's</span>
+          <span class="brand-subtitle">Online Cart System</span>
+        </div>
+      </a>
+
+      <div class="nav-actions">
+        <a href="/" class="nav-btn nav-btn-outline">
+          <span>← Back to Catalog</span>
+        </a>
+
+        <div id="navUserActions" style="display: flex; gap: 10px; align-items: center;"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Customer Content -->
+  <main class="main-container">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Customer Dashboard</h2>
+        <p class="section-subtitle">Manage your order history, track deliveries, and view account details</p>
+      </div>
+
+      <div>
+        <button class="nav-btn nav-btn-primary" onclick="loadCustomerOrders()">
+          <span>🔄</span> Refresh Orders
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="dashboard-grid">
+      <div class="stat-card">
+        <div class="stat-icon icon-blue">📦</div>
+        <div>
+          <div class="stat-value" id="statTotalOrders">0</div>
+          <div class="stat-label">Total Orders Placed</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon icon-gold">⏳</div>
+        <div>
+          <div class="stat-value" id="statPendingOrders">0</div>
+          <div class="stat-label">Pending / In Progress</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon icon-emerald">✅</div>
+        <div>
+          <div class="stat-value" id="statCompletedOrders">0</div>
+          <div class="stat-label">Delivered Orders</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon icon-purple">💳</div>
+        <div>
+          <div class="stat-value" id="statTotalSpent">$0.00</div>
+          <div class="stat-label">Lifetime Purchases</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Details Banner -->
+    <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 32px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; box-shadow: var(--shadow-sm);">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--navy-900); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 700;" id="userAvatar">
+          U
+        </div>
+        <div>
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--navy-900);" id="profileName">Loading Profile...</h3>
+          <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 14px; flex-wrap: wrap;">
+            <span id="profileEmail">user@example.com</span>
+            <span>•</span>
+            <span id="profilePhone">No phone added</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <span class="status-badge badge-delivered" style="font-size: 0.8rem; padding: 6px 14px;" id="profileRoleBadge">Customer</span>
+      </div>
+    </div>
+
+    <!-- Orders Table Section -->
+    <div style="margin-bottom: 24px;">
+      <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--navy-900); margin-bottom: 16px;">
+        Order History & Tracking
+      </h3>
+
+      <div class="table-responsive">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Order #</th>
+              <th>Date</th>
+              <th>Items</th>
+              <th>Total Amount</th>
+              <th>Status</th>
+              <th>Shipping Address</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="customerOrdersTable">
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 36px 0; color: var(--text-muted);">
+                Fetching your orders from MySQL...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Order Details Modal -->
+  <div class="modal-overlay" id="customerOrderModal">
+    <div class="modal-box" style="max-width: 650px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="orderModalTitle">Order Details</h3>
+        <button class="close-btn" onclick="closeOrderModal()">×</button>
+      </div>
+      <div class="modal-body" id="orderModalBody">
+        <!-- Dynamically injected -->
+      </div>
+      <div class="modal-footer">
+        <button class="nav-btn nav-btn-outline" onclick="closeOrderModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-bottom" style="margin: 0 auto; max-width: 1300px;">
+      <div>&copy; 2026 Parthu Reddy's Online Cart Management System. Secure customer portal.</div>
+      <div>Real-time MySQL Data Verification</div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/customer.js"></script>
+</body>
+</html>

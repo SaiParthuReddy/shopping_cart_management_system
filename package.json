@@ -1,0 +1,29 @@
+{
+  "name": "shopping-cart-management-system",
+  "version": "1.0.0",
+  "description": "Parthu Reddy's Online Cart Management System - Full-stack E-Commerce Application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "init-db": "node database/setupDb.js"
+  },
+  "keywords": [
+    "ecommerce",
+    "shopping-cart",
+    "mysql",
+    "express",
+    "node"
+  ],
+  "author": "Parthu Reddy",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.24.6"
+  }
+}

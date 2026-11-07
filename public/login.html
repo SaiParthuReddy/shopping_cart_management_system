@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Account Login & Registration - Parthu Reddy's Online Cart</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛍️</text></svg>">
+</head>
+<body style="background: linear-gradient(135deg, #0b192c 0%, #1e3e62 100%); min-height: 100vh; display: flex; flex-direction: column;">
+
+  <!-- Live MySQL Connection Bar -->
+  <div class="db-status-bar" id="dbStatusBar">
+    <div class="db-status-badge">
+      <span class="status-dot"></span>
+      <span>Checking Database Status...</span>
+    </div>
+  </div>
+
+  <div style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 20px;">
+    <div style="width: 100%; max-width: 480px; background: #ffffff; border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); overflow: hidden;">
+      
+      <!-- Card Header -->
+      <div style="background: var(--navy-950); padding: 28px 24px; text-align: center; color: #ffffff;">
+        <a href="/" class="brand-logo" style="justify-content: center; margin-bottom: 8px;">
+          <div class="brand-icon">🛍️</div>
+          <div class="brand-title" style="text-align: left;">
+            <span class="brand-main">Parthu Reddy's</span>
+            <span class="brand-subtitle">Online Cart System</span>
+          </div>
+        </a>
+        <p style="font-size: 0.85rem; color: #94a3b8;">Customer & Administrator Authentication Portal</p>
+      </div>
+
+      <!-- Tab Switcher -->
+      <div style="display: flex; border-bottom: 1px solid var(--border-light);">
+        <button id="tabLoginBtn" class="tab-btn active" style="flex: 1; justify-content: center; padding: 14px;" onclick="switchAuthTab('login')">
+          Sign In
+        </button>
+        <button id="tabRegisterBtn" class="tab-btn" style="flex: 1; justify-content: center; padding: 14px;" onclick="switchAuthTab('register')">
+          Register
+        </button>
+      </div>
+
+      <!-- Auth Body -->
+      <div style="padding: 28px 24px;">
+
+        <!-- Quick Demo Credentials Box -->
+        <div style="background: var(--blue-50); border: 1px solid var(--blue-100); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 22px;">
+          <div style="font-size: 0.78rem; font-weight: 700; color: var(--blue-600); text-transform: uppercase; margin-bottom: 6px;">
+            ⚡ Quick Demo Credentials
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="nav-btn nav-btn-outline" style="font-size: 0.75rem; padding: 4px 10px; background: #ffffff; border-color: var(--blue-400); color: var(--blue-600);" onclick="fillDemo('admin')">
+              Demo Admin
+            </button>
+            <button class="nav-btn nav-btn-outline" style="font-size: 0.75rem; padding: 4px 10px; background: #ffffff; border-color: var(--blue-400); color: var(--blue-600);" onclick="fillDemo('customer')">
+              Demo Customer
+            </button>
+          </div>
+        </div>
+
+        <!-- Feedback Alert -->
+        <div id="authAlert" style="display: none; padding: 12px 16px; border-radius: var(--radius-md); margin-bottom: 18px; font-size: 0.875rem;"></div>
+
+        <!-- Form: Login -->
+        <form id="loginForm" onsubmit="handleLoginSubmit(event)">
+          <div class="form-group">
+            <label class="form-label" for="loginEmail">Email Address</label>
+            <input type="email" id="loginEmail" class="form-control" placeholder="admin@parthucart.com or user@example.com" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" class="form-control" placeholder="Enter your password" required />
+          </div>
+
+          <button type="submit" id="btnLoginSubmit" class="btn-checkout" style="margin-top: 8px;">
+            <span>Sign In to Account</span>
+            <span>→</span>
+          </button>
+        </form>
+
+        <!-- Form: Register -->
+        <form id="registerForm" style="display: none;" onsubmit="handleRegisterSubmit(event)">
+          <div class="form-group">
+            <label class="form-label" for="regName">Full Name *</label>
+            <input type="text" id="regName" class="form-control" placeholder="e.g. Parthu Reddy" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="regEmail">Email Address *</label>
+            <input type="email" id="regEmail" class="form-control" placeholder="e.g. parthu@example.com" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="regPhone">Phone Number</label>
+            <input type="tel" id="regPhone" class="form-control" placeholder="e.g. 9876543210" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="regPassword">Password (Min. 6 characters) *</label>
+            <input type="password" id="regPassword" class="form-control" placeholder="Create a secure password" minlength="6" required />
+          </div>
+
+          <button type="submit" id="btnRegisterSubmit" class="btn-checkout" style="margin-top: 8px;">
+            <span>Create Customer Account</span>
+            <span>→</span>
+          </button>
+        </form>
+
+      </div>
+
+      <!-- Card Footer -->
+      <div style="background: var(--bg-page); border-top: 1px solid var(--border-light); padding: 14px 24px; text-align: center; font-size: 0.85rem; color: var(--text-muted);">
+        <a href="/" style="color: var(--blue-600); font-weight: 600;">← Back to Home Catalog</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+</body>
+</html>
